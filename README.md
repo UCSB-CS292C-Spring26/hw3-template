@@ -55,7 +55,7 @@ Your analyzer must check for **at least the following vulnerability classes:**
 
 | ID | Vulnerability Class | Description |
 |----|-------------------|-------------|
-| `V1` | **Hardcoded suspicious endpoints** | URLs or IPs that are non-routable (private/CGNAT ranges), raw IPs instead of domain names, or plaintext HTTP for sensitive operations |
+| `V1` | **Hardcoded suspicious endpoints** | URLs or IPs that raise red flags: raw IPs instead of domain names, non-publicly-routable addresses, plaintext HTTP for sensitive operations, or non-standard ports |
 | `V2` | **Credential exposure** | Secrets, passwords, API keys, or tokens passed via command-line arguments, environment variables, or written to world-readable locations |
 | `V3` | **Dangerous execution primitives** | Patterns like `eval`, `exec`, `curl\|sh`, `npm install -g`, or subprocess calls with unsanitized input from network sources |
 | `V4` | **Unconfirmed destructive operations** | File deletion, system configuration changes, package installation, or persistence mechanisms (cron, launchd, systemd) without explicit user confirmation |
@@ -98,7 +98,7 @@ For each skill, your report must include:
 
 In `report.md`, add a final section answering:
 
-1. **(8 pts)** For each vulnerability class (V1–V5), propose a **specific, implementable** defense that an agent runtime could enforce. Be concrete — "validate URLs" is too vague; "reject any URL where the host is a raw IP or falls within RFC 6598 (100.64.0.0/10) or RFC 1918 ranges" is specific.
+1. **(8 pts)** For each vulnerability class (V1–V5), propose a **specific, implementable** defense that an agent runtime could enforce. Be concrete — "validate URLs" is too vague; specify exactly what the runtime should check and reject.
 
 2. **(6 pts)** Your analyzer uses static analysis (pattern matching on text). Describe **two limitations** of this approach — what kinds of vulnerabilities would it miss? Give a concrete example of each.
 
@@ -132,7 +132,7 @@ Skeleton code is provided in `analyzer.py` with the parsing infrastructure and o
 - **Use regex for pattern matching.** Python's `re` module is sufficient for most detections. You don't need an AST parser for Markdown.
 - **Think about what's NOT said.** Some vulnerabilities are about what the skill *doesn't* mention — no TLS, no confirmation step, no user approval.
 - **Test on the provided skills first**, then generalize. Your analyzer will be graded on unseen skills.
-- **The IP address ranges matter.** Learn RFC 1918 (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) and RFC 6598 (100.64.0.0/10) — these are not routable on the public internet.
+- **Think about network topology.** Not all IP addresses are publicly routable. Research which IP ranges are reserved for private or special use — this knowledge is essential for V1 detection.
 - 8 free late days are shared across all assignments.
 
 ## Academic Integrity

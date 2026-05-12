@@ -138,12 +138,7 @@ def check_v1_suspicious_endpoints(skill: SkillInfo) -> list[Finding]:
 
     Look for:
     - Raw IP addresses in URLs (instead of domain names)
-    - IPs in private/CGNAT ranges:
-        - 10.0.0.0/8 (RFC 1918)
-        - 172.16.0.0/12 (RFC 1918)
-        - 192.168.0.0/16 (RFC 1918)
-        - 100.64.0.0/10 (RFC 6598, CGNAT / Tailscale)
-        - 127.0.0.0/8 (loopback)
+    - IPs in non-publicly-routable ranges (research which RFC ranges apply)
     - Plaintext HTTP for anything that handles sensitive data
     - Hardcoded non-standard ports
 
@@ -184,11 +179,10 @@ def check_v3_dangerous_execution(skill: SkillInfo) -> list[Finding]:
 
     Look for:
     - eval(), exec(), Function() in any language
-    - curl | sh, wget | bash (pipe-to-shell)
-    - npm install -g, pip install (global installs)
+    - Pipe-to-shell patterns (e.g., piping downloaded content into a shell)
+    - Global package installations without confirmation
     - subprocess/os.system with unsanitized input
-    - Network-fetched content fed into execution contexts
-      (download → write to disk → execute/render)
+    - Network-fetched content fed into local execution contexts
 
     TODO: Implement this function.
     """
