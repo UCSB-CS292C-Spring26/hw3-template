@@ -2,25 +2,17 @@
 """
 CS292C Homework 3: SKILL.md Static Analyzer
 ============================================
-Analyze agent skill files for security vulnerabilities.
+Analyze agent skill files for security issues.
 
 Usage:
     python3 analyzer.py skills/farmos_weather.md      # single file
     python3 analyzer.py skills/                        # entire directory
-
-Vulnerability Classes:
-    V1 - Hardcoded suspicious endpoints
-    V2 - Credential exposure
-    V3 - Dangerous execution primitives
-    V4 - Unconfirmed destructive operations
-    V5 - Data exfiltration patterns
 """
 
 import sys
 import os
 import re
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 # ============================================================================
@@ -31,7 +23,6 @@ from typing import Optional
 class Finding:
     """A single security finding."""
     skill_name: str
-    vuln_class: str        # V1, V2, V3, V4, V5, ...
     severity: str          # CRITICAL, HIGH, MEDIUM, LOW
     location: str          # e.g., "line 15" or "section: API Base"
     description: str
@@ -40,7 +31,6 @@ class Finding:
     def __str__(self):
         return (
             f"[FINDING] {self.skill_name}\n"
-            f"  Class: {self.vuln_class}\n"
             f"  Severity: {self.severity}\n"
             f"  Location: {self.location}\n"
             f"  Description: {self.description}\n"
@@ -62,7 +52,8 @@ class SkillInfo:
 
 
 # ============================================================================
-# Parsing
+# Parsing — extracts structured info from a SKILL.md file.
+# You may modify or extend this section as needed.
 # ============================================================================
 
 def parse_skill(filepath: str) -> SkillInfo:
@@ -111,150 +102,52 @@ def parse_skill(filepath: str) -> SkillInfo:
         elif in_code_block:
             code_lines.append(line)
 
-    # Extract shell/command patterns with line numbers
-    cmd_pattern = re.compile(
-        r'(?:^|\n)\s*(?:```(?:bash|sh|shell)?\s*\n)?(.*?(?:curl|wget|npm|pip|brew|apt|'
-        r'eval|exec|bash|sh|chmod|chown|rm\s|kill|launchctl|crontab|systemctl|'
-        r'gpg|pass\s|openssl|ssh|scp).*?)(?:\n|$)',
-        re.IGNORECASE
-    )
-    for i, line in enumerate(lines, 1):
-        for match in cmd_pattern.finditer(line):
-            skill.commands.append((i, match.group(1).strip()))
-
     return skill
 
 
 # ============================================================================
 # Detection Rules
 #
-# Implement each check_* function below. Each should return a list of Finding
-# objects for any vulnerabilities detected.
-# ============================================================================
-
-def check_v1_suspicious_endpoints(skill: SkillInfo) -> list[Finding]:
-    """
-    V1: Hardcoded suspicious endpoints
-
-    Look for:
-    - Raw IP addresses in URLs (instead of domain names)
-    - IPs in non-publicly-routable ranges (research which RFC ranges apply)
-    - Plaintext HTTP for anything that handles sensitive data
-    - Hardcoded non-standard ports
-
-    TODO: Implement this function.
-    """
-    findings = []
-
-    # TODO: Check each URL in skill.urls for suspicious patterns
-    # for line_num, url in skill.urls:
-    #     ...
-
-    return findings
-
-
-def check_v2_credential_exposure(skill: SkillInfo) -> list[Finding]:
-    """
-    V2: Credential exposure
-
-    Look for:
-    - Passwords, tokens, secrets, API keys passed as CLI arguments
-    - Credentials in environment variables exposed to child processes
-    - Secrets written to world-readable files
-    - Hardcoded credentials in the skill text
-    - Patterns like: --password, --token, -p <secret>, API_KEY=, etc.
-
-    TODO: Implement this function.
-    """
-    findings = []
-
-    # TODO: Scan skill.raw_text and skill.commands for credential patterns
-
-    return findings
-
-
-def check_v3_dangerous_execution(skill: SkillInfo) -> list[Finding]:
-    """
-    V3: Dangerous execution primitives
-
-    Look for:
-    - eval(), exec(), Function() in any language
-    - Pipe-to-shell patterns (e.g., piping downloaded content into a shell)
-    - Global package installations without confirmation
-    - subprocess/os.system with unsanitized input
-    - Network-fetched content fed into local execution contexts
-
-    TODO: Implement this function.
-    """
-    findings = []
-
-    # TODO: Check skill.raw_text, skill.code_blocks, and skill.commands
-
-    return findings
-
-
-def check_v4_unconfirmed_destructive(skill: SkillInfo) -> list[Finding]:
-    """
-    V4: Unconfirmed destructive operations
-
-    Look for:
-    - File deletion (rm, unlink, shutil.rmtree)
-    - System config changes (chmod, chown, /etc/ modifications)
-    - Package installation without confirmation
-    - Persistence mechanisms:
-        - launchd plists (launchctl load)
-        - cron jobs (crontab)
-        - systemd services
-        - login items / startup scripts
-    - Operations that should require "confirm with user" but don't
-
-    TODO: Implement this function.
-    """
-    findings = []
-
-    # TODO: Check for persistence and destructive patterns
-
-    return findings
-
-
-def check_v5_data_exfiltration(skill: SkillInfo) -> list[Finding]:
-    """
-    V5: Data exfiltration patterns
-
-    Look for:
-    - Sensitive data (file paths, credentials, user data) flowing to
-      network endpoints
-    - Local file reads followed by network writes
-    - User-identifying information sent to third-party services
-    - Base64 encoding of file contents (common exfil obfuscation)
-    - Patterns: read file → encode → POST to external service
-
-    TODO: Implement this function.
-    """
-    findings = []
-
-    # TODO: Look for data flow from local sources to network sinks
-
-    return findings
-
-
-# ============================================================================
-# Main Analysis Pipeline
+# TODO: Implement your detection logic below.
+#
+# You decide what to check for. Read the skills in skills/ carefully,
+# identify the security issues, then implement detection functions that
+# would generalize to other skills with similar problems.
+#
+# You can organize your code however you like — one big function, many
+# small functions, or a class-based approach. The only requirement is
+# that analyze_skill() returns a list of Finding objects.
 # ============================================================================
 
 def analyze_skill(filepath: str) -> list[Finding]:
-    """Run all checks on a single SKILL.md file."""
-    skill = parse_skill(filepath)
+    """
+    Run all checks on a single SKILL.md file.
 
+    TODO: Implement your detection logic here.
+    Parse the skill, apply your rules, and return findings.
+    """
+    skill = parse_skill(filepath)
     findings = []
-    findings.extend(check_v1_suspicious_endpoints(skill))
-    findings.extend(check_v2_credential_exposure(skill))
-    findings.extend(check_v3_dangerous_execution(skill))
-    findings.extend(check_v4_unconfirmed_destructive(skill))
-    findings.extend(check_v5_data_exfiltration(skill))
+
+    # TODO: Add your detection rules here.
+    # Example structure (delete this and replace with your own):
+    #
+    # for line_num, url in skill.urls:
+    #     if some_check(url):
+    #         findings.append(Finding(
+    #             skill_name=skill.name,
+    #             severity="HIGH",
+    #             location=f"line {line_num}",
+    #             description="Description of the issue",
+    #             evidence=url,
+    #         ))
 
     return findings
 
+
+# ============================================================================
+# Main — do not modify
+# ============================================================================
 
 def main():
     if len(sys.argv) < 2:

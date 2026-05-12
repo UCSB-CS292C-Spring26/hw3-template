@@ -12,7 +12,7 @@ For each skill in `skills/`, fill in the sections below with your analysis findi
 <!-- What does this skill claim to do? (1–2 sentences) -->
 
 ### Findings
-<!-- List each vulnerability found by your analyzer. Include class, severity, evidence. -->
+<!-- List each issue found by your analyzer. Include severity, location, and evidence. -->
 
 ### Attack Scenario
 <!-- For the most critical finding: who is the attacker, what do they gain, what is the blast radius? (3–5 sentences) -->
@@ -60,20 +60,8 @@ For each skill in `skills/`, fill in the sections below with your analysis findi
 
 ## Defense Recommendations
 
-### V1 Defenses (Hardcoded suspicious endpoints)
-<!-- Propose a specific, implementable defense for agent runtimes. -->
-
-### V2 Defenses (Credential exposure)
-<!-- Propose a specific, implementable defense. -->
-
-### V3 Defenses (Dangerous execution primitives)
-<!-- Propose a specific, implementable defense. -->
-
-### V4 Defenses (Unconfirmed destructive operations)
-<!-- Propose a specific, implementable defense. -->
-
-### V5 Defenses (Data exfiltration patterns)
-<!-- Propose a specific, implementable defense. -->
+### Defenses
+<!-- For each category of issue you identified, propose a specific, implementable defense that an agent runtime could enforce. -->
 
 ### Limitations of Static Analysis
 <!-- Describe two limitations of your static analysis approach. Give a concrete example of what each would miss. -->

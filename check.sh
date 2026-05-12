@@ -60,7 +60,7 @@ for skill in skills/farmos_weather.md skills/passwordstore_broker.md skills/offi
             if [ "$finding_count" -gt 0 ]; then
                 pass_msg "$skill — $finding_count finding(s)"
             else
-                warn_msg "$skill — no findings (each skill has at least one vulnerability)"
+                warn_msg "$skill — no findings (each skill has at least one issue)"
             fi
         else
             fail_msg "$skill — analyzer crashed"
