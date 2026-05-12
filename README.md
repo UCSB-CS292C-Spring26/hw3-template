@@ -13,8 +13,8 @@ In this assignment, you will build a **static analysis tool** that automatically
 ## Setup
 
 ```bash
-python3 analyzer.py skills/farmos_weather.md       # single skill
-python3 analyzer.py skills/                         # all skills
+python3 analyzer.py skills/bad_example.md            # single skill
+python3 analyzer.py skills/                           # all skills
 ```
 
 ## Submission
@@ -23,6 +23,44 @@ Push all work to this repo before the deadline:
 1. `analyzer.py` — your static analysis tool
 2. `report.md` — findings report
 3. Run `bash check.sh` before submitting.
+
+## Worked Example
+
+To help you get started, we provide two reference skills:
+
+### `skills/safe_example.md` — A clean skill (no issues)
+
+This is a simple Markdown formatter. It reads a file, formats it, **asks the user for confirmation**, then writes it back. No network access, no package installs, no persistence. Your analyzer should produce **no findings** on this skill.
+
+### `skills/bad_example.md` — A skill with obvious issues
+
+This "motivational quote" skill has several problems. Here is what a correct analyzer should output:
+
+```
+[FINDING] daily-motivational-quote
+  Severity: HIGH
+  Location: line 14
+  Description: URL uses a raw IP address instead of a domain name
+  Evidence: http://192.168.50.5:9090/api/quote/random
+
+[FINDING] daily-motivational-quote
+  Severity: MEDIUM
+  Location: line 14
+  Description: Plaintext HTTP used (no TLS)
+  Evidence: http://192.168.50.5:9090/api/quote/random
+
+[FINDING] daily-motivational-quote
+  Severity: HIGH
+  Location: line 27
+  Description: Cron job installed without asking the user for confirmation
+  Evidence: crontab -l | { cat; echo "0 8 * * * curl ..."; } | crontab -
+```
+
+Note: This is not an exhaustive list — your analyzer may find additional issues in `bad_example.md`. The point is to show the expected output format and the level of specificity we expect.
+
+**Use these two skills to calibrate your analyzer** before running it on the four real skills below.
+
+---
 
 ## The Skills
 
@@ -34,6 +72,8 @@ Four SKILL.md files are provided in `skills/`. Each is a real skill that was pub
 | `passwordstore_broker.md` | Password manager bridge |
 | `office_quotes.md` | The Office (US) quote generator |
 | `email_daily_summary.md` | Daily email digest |
+
+Your job is to figure out what's wrong with each one.
 
 ## Your Task
 
@@ -77,18 +117,37 @@ In `report.md`, add a final section:
 
 ## Grading
 
-| Part | Points | What We Check |
-|------|--------|---------------|
-| Part 1: Analyzer | 50 | We run your analyzer on **hidden test skills** (not the ones in `skills/`). Points based on true positives found and false positive rate. |
-| Part 2: Skill Analysis | 30 | Correctness and depth of findings for the four provided skills. |
-| Part 3: Defense Recommendations | 20 | Specificity and feasibility of proposed defenses. |
-| **Total** | **100** | |
+### Part 1 Grading (50 points)
+
+We run your analyzer on **hidden test skills** not included in this repo. These hidden skills contain similar classes of issues to the ones in `skills/`, but are different skills.
+
+Points are awarded based on **detection categories**, not individual skills:
+
+| Criteria | Points |
+|----------|--------|
+| Detects issues in category A across hidden skills | 10 |
+| Detects issues in category B across hidden skills | 10 |
+| Detects issues in category C across hidden skills | 10 |
+| Detects issues in category D across hidden skills | 10 |
+| Low false positive rate (< 3 false positives per skill on clean skills) | 10 |
+
+The categories correspond to the types of issues present in the four provided skills. If your analyzer catches the issues in the provided skills using general rules (not hardcoded checks), it will score well on the hidden skills too.
+
+### Part 2 & 3 Grading
+
+| Part | Points |
+|------|--------|
+| Part 2: Skill Analysis | 30 |
+| Part 3: Defense Recommendations | 20 |
+| **Total** | **100** |
 
 ## Tips
 
 - **Start by reading the skills carefully.** Before writing any code, read each SKILL.md as if you were a security auditor. What looks suspicious? That intuition will guide your detection rules.
+- **Use the worked example** (`bad_example.md`) to test your output format and make sure your basic checks work before tackling the harder skills.
+- **Use the safe example** (`safe_example.md`) to verify your analyzer doesn't flag clean skills (false positives hurt your score).
 - **Think about what a skill *should* vs. *actually* does.** Does the skill's behavior match its description? Does it access resources beyond what it claims to need?
-- **Generalize.** Your analyzer will be graded on unseen skills. Don't hardcode checks for specific skills — build rules that catch *classes* of problems.
+- **Generalize.** Don't hardcode checks for specific skills — build rules that catch *classes* of problems.
 - 8 free late days are shared across all assignments.
 
 ## Academic Integrity
